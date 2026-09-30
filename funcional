@@ -1,0 +1,221 @@
+import math
+
+
+# ============================================================
+# FUNCIÓN DE ENTRADA DE DATOS
+# ============================================================
+
+def pedir_numero(mensaje):
+    """
+    Solicita al usuario un número válido.
+
+    La función evita que el programa termine si el usuario:
+    - Deja el campo vacío.
+    - Introduce texto.
+    - Introduce valores como NaN o infinito.
+
+    Parámetros:
+        mensaje: Texto que se muestra al usuario.
+
+    Retorna:
+        Un número de tipo float válido y finito.
+    """
+
+    while True:
+
+        # Solicitar el dato y eliminar espacios innecesarios
+        entrada = input(mensaje).strip()
+
+        # Comprobar si el usuario no escribió nada
+        if entrada == "":
+            print("Error: no puede dejar el campo vacío.")
+            continue
+
+        # Intentar convertir la entrada a número
+        try:
+            numero = float(entrada)
+
+        except ValueError:
+            print("Error: introduzca solamente un número.")
+            continue
+
+        # Comprobar que el número sea finito
+        if not math.isfinite(numero):
+            print("Error: introduzca un número válido y finito.")
+            continue
+
+        return numero
+
+
+# ============================================================
+# FUNCIONES LAMBDA
+# ============================================================
+
+# ------------------------------------------------------------
+# Validación de la tupla de entrada
+# ------------------------------------------------------------
+#
+# La tupla debe contener exactamente dos elementos:
+#
+#       (horas_restantes, monto_pagado)
+#
+# Además:
+# - Ambos valores deben ser numéricos.
+# - No pueden ser valores booleanos.
+# - Deben ser números finitos.
+# - No pueden ser negativos.
+#
+validar_datos = lambda cita: (
+    isinstance(cita, tuple)
+    and len(cita) == 2
+    and isinstance(cita[0], (int, float))
+    and not isinstance(cita[0], bool)
+    and isinstance(cita[1], (int, float))
+    and not isinstance(cita[1], bool)
+    and math.isfinite(cita[0])
+    and math.isfinite(cita[1])
+    and cita[0] >= 0
+    and cita[1] >= 0
+)
+
+
+# ------------------------------------------------------------
+# Determinar porcentaje de devolución
+# ------------------------------------------------------------
+#
+# Regla del requerimiento RF-08:
+#
+# 48 horas o más  -> 100%
+# 24 a menos de 48 -> 50%
+# Menos de 24      -> 0%
+#
+porcentaje_devolucion = lambda cita: (
+    1.0 if cita[0] >= 48
+    else 0.5 if cita[0] >= 24
+    else 0.0
+)
+
+
+# ------------------------------------------------------------
+# Calcular monto de devolución
+# ------------------------------------------------------------
+#
+# Multiplica el monto pagado por el porcentaje correspondiente.
+# El resultado se redondea a dos decimales.
+#
+calcular_monto = lambda cita, porcentaje: (
+    round(cita[1] * porcentaje, 2)
+)
+
+
+# ------------------------------------------------------------
+# Calcular la devolución completa
+# ------------------------------------------------------------
+#
+# Primero valida los datos.
+#
+# Si son válidos:
+#   1. Obtiene el porcentaje.
+#   2. Calcula el monto de devolución.
+#   3. Regresa los resultados.
+#
+# Si son inválidos:
+#   Regresa el estado "rechazada".
+#
+calcular_devolucion = lambda cita: (
+    (
+        "aceptada",
+        porcentaje_devolucion(cita),
+        calcular_monto(
+            cita,
+            porcentaje_devolucion(cita)
+        )
+    )
+    if validar_datos(cita)
+    else
+    (
+        "rechazada",
+        "Los datos introducidos no son válidos."
+    )
+)
+
+
+# ============================================================
+# ENTRADA DE DATOS
+# ============================================================
+
+print("=== CÁLCULO DE DEVOLUCIÓN DE CITA ===")
+
+
+# Solicitar al usuario las horas restantes
+horas = pedir_numero(
+    "¿Cuántas horas faltan para la cita? "
+)
+
+
+# Solicitar al usuario el monto pagado
+monto = pedir_numero(
+    "¿Cuánto pagó el paciente? $"
+)
+
+
+# ============================================================
+# CREACIÓN DE LA ESTRUCTURA DE DATOS
+# ============================================================
+
+# Se almacenan los datos en una tupla.
+#
+# Ejemplo:
+# Si horas = 50 y monto = 1000:
+#
+#       cita = (50, 1000)
+#
+cita = (horas, monto)
+
+
+# ============================================================
+# TRANSFORMACIÓN FUNCIONAL
+# ============================================================
+
+# La tupla se proporciona como entrada a la función
+# calcular_devolucion.
+#
+# La función devuelve un nuevo resultado sin modificar
+# directamente la tupla original.
+#
+resultado = calcular_devolucion(cita)
+
+
+# ============================================================
+# SALIDA DE RESULTADOS
+# ============================================================
+
+print("\n--- Resultado ---")
+
+# Mostrar los datos originales
+print("Tupla de entrada:", cita)
+
+
+# Comprobar si el cálculo fue aceptado
+if resultado[0] == "aceptada":
+
+    # Mostrar el porcentaje obtenido
+    print(
+        "Porcentaje de devolución:",
+        resultado[1] * 100,
+        "%"
+    )
+
+    # Mostrar el monto que debe devolverse
+    print(
+        "Monto de devolución: $",
+        resultado[2]
+    )
+
+else:
+
+    # Mostrar el mensaje de error
+    print(
+        "Error:",
+        resultado[1]
+    )

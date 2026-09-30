@@ -1,0 +1,247 @@
+import math
+
+
+# ============================================================
+# PROGRAMA IMPERATIVO PARA EL CÁLCULO DE DEVOLUCIÓN DE CITA
+# ============================================================
+#
+# Este programa implementa el requerimiento RF-08:
+#
+#   - 48 horas o más antes de la cita -> 100% de devolución
+#   - 24 horas o más y menos de 48     -> 50% de devolución
+#   - Menos de 24 horas               -> 0% de devolución
+#
+# El programa utiliza un enfoque imperativo porque el proceso
+# se ejecuta mediante instrucciones secuenciales y variables
+# cuyo estado puede cambiar durante la ejecución.
+# ============================================================
+
+
+print("=== CÁLCULO DE DEVOLUCIÓN DE CITA ===")
+
+
+# ============================================================
+# ENTRADA Y VALIDACIÓN DE LAS HORAS
+# ============================================================
+
+# Se utiliza un ciclo para obligar al usuario a proporcionar
+# un valor válido.
+while True:
+
+    # Solicitar al usuario las horas restantes para la cita.
+    entrada_horas = input(
+        "¿Cuántas horas faltan para la cita? "
+    ).strip()
+
+
+    # Comprobar si el usuario dejó el campo vacío.
+    if entrada_horas == "":
+        print("Error: no puede dejar el campo vacío.")
+        continue
+
+
+    # Intentar convertir la entrada a un número.
+    try:
+        horas = float(entrada_horas)
+
+    # Si la conversión falla, significa que el usuario
+    # introdujo texto que no puede convertirse a número.
+    except ValueError:
+        print("Error: introduzca solamente un número.")
+        continue
+
+
+    # Comprobar que el número sea finito.
+    # Esto evita valores como NaN o infinito.
+    if not math.isfinite(horas):
+        print("Error: introduzca un número válido y finito.")
+        continue
+
+
+    # Si todas las validaciones fueron correctas,
+    # se termina el ciclo.
+    break
+
+
+# ============================================================
+# ENTRADA Y VALIDACIÓN DEL MONTO
+# ============================================================
+
+# Se repite el mismo proceso para obtener el monto
+# pagado por el paciente.
+while True:
+
+    # Solicitar el monto pagado.
+    entrada_monto = input(
+        "¿Cuánto pagó el paciente? $"
+    ).strip()
+
+
+    # Comprobar si el campo está vacío.
+    if entrada_monto == "":
+        print("Error: no puede dejar el campo vacío.")
+        continue
+
+
+    # Intentar convertir el monto a un número.
+    try:
+        monto = float(entrada_monto)
+
+    # Manejar entradas que no sean números.
+    except ValueError:
+        print("Error: introduzca solamente un número.")
+        continue
+
+
+    # Comprobar que el monto sea un número finito.
+    if not math.isfinite(monto):
+        print("Error: introduzca un número válido y finito.")
+        continue
+
+
+    # Si el dato es válido, salir del ciclo.
+    break
+
+
+# ============================================================
+# CREACIÓN DE LA TUPLA
+# ============================================================
+
+# Se almacenan las dos entradas en una tupla.
+#
+# Ejemplo:
+#
+#       horas = 50
+#       monto = 1000
+#
+#       cita = (50, 1000)
+#
+cita = (horas, monto)
+
+
+# ============================================================
+# VALIDACIÓN DE LOS DATOS
+# ============================================================
+
+# Primero se verifica que las horas no sean negativas.
+if horas < 0:
+
+    # Si son negativas, la operación se rechaza.
+    resultado = "rechazada"
+
+    mensaje = (
+        "Las horas restantes no pueden ser negativas."
+    )
+
+
+# Si las horas son válidas, se verifica el monto.
+elif monto < 0:
+
+    # Un monto negativo tampoco es válido.
+    resultado = "rechazada"
+
+    mensaje = (
+        "El monto no puede ser negativo."
+    )
+
+
+# ============================================================
+# CÁLCULO DE LA DEVOLUCIÓN
+# ============================================================
+
+# Si los datos son válidos, se procede a determinar
+# el porcentaje correspondiente.
+else:
+
+    # --------------------------------------------------------
+    # CASO 1: 48 HORAS O MÁS
+    # --------------------------------------------------------
+    #
+    # De acuerdo con RF-08, corresponde el 100%.
+    if horas >= 48:
+
+        porcentaje = 1.0
+
+
+    # --------------------------------------------------------
+    # CASO 2: ENTRE 24 Y MENOS DE 48 HORAS
+    # --------------------------------------------------------
+    #
+    # Corresponde el 50%.
+    elif horas >= 24:
+
+        porcentaje = 0.5
+
+
+    # --------------------------------------------------------
+    # CASO 3: MENOS DE 24 HORAS
+    # --------------------------------------------------------
+    #
+    # No corresponde devolución.
+    else:
+
+        porcentaje = 0.0
+
+
+    # --------------------------------------------------------
+    # CALCULAR EL MONTO DE DEVOLUCIÓN
+    # --------------------------------------------------------
+    #
+    # Se multiplica el monto pagado por el porcentaje
+    # correspondiente.
+    #
+    # Ejemplo:
+    # monto = 1000
+    # porcentaje = 0.5
+    #
+    # devolución = 1000 * 0.5 = 500
+    #
+    devolucion = round(
+        monto * porcentaje,
+        2
+    )
+
+
+    # Indicar que la operación fue aceptada.
+    resultado = "aceptada"
+
+
+# ============================================================
+# MOSTRAR RESULTADO
+# ============================================================
+
+print("\n--- Resultado ---")
+
+
+# Mostrar la tupla que contiene los datos originales.
+print(
+    "Tupla de entrada:",
+    cita
+)
+
+
+# Comprobar si la operación fue aceptada.
+if resultado == "aceptada":
+
+    # Mostrar el porcentaje de devolución.
+    print(
+        "Porcentaje de devolución:",
+        porcentaje * 100,
+        "%"
+    )
+
+
+    # Mostrar el monto final que se debe devolver.
+    print(
+        "Monto de devolución: $",
+        devolucion
+    )
+
+
+# Si la operación fue rechazada, mostrar el motivo.
+else:
+
+    print(
+        "Error:",
+        mensaje
+    )
